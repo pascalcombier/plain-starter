@@ -430,7 +430,6 @@ static int PS_RunProcess (TCHAR *CommandLine)
   int                  CreateFlags;
   DWORD                ExitCode;
   DWORD                BytesWritten;
-  TCHAR               *Message;
 
   SecureZeroMemory(&si, sizeof(si));
   SecureZeroMemory(&pi, sizeof(pi));
@@ -513,20 +512,18 @@ static int PS_RunProcess (TCHAR *CommandLine)
     };
 
     BytesWritten = FormatMessage(FORMAT_MESSAGE_FROM_STRING
-                                 | FORMAT_MESSAGE_ARGUMENT_ARRAY
-                                 | FORMAT_MESSAGE_ALLOCATE_BUFFER,
+                                 | FORMAT_MESSAGE_ARGUMENT_ARRAY,
                                  _T("Error: the command line could not be executed\n")
                                  _T("[%1!s!]\n\n")
                                  _T("PATH: '%2!s!'\n"),
                                  0,
                                  0,
-                                 (LPWSTR)&Message,
-                                 0,
+                                 (LPWSTR)&PS_BufferIn,
+                                 sizeof(PS_BufferIn),
                                  (char **)Args);
     if (BytesWritten > 0)
     {
-      MessageBox(NULL, Message, _T("Error#08"), MB_ICONERROR);
-      LocalFree(Message);
+      MessageBox(NULL, PS_BufferIn, _T("Error#08"), MB_ICONERROR);
     }
     else
     {
