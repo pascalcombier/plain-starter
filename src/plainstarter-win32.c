@@ -168,7 +168,7 @@ static void PS_MessageAndExit (char         ErrorId,
 
   BytesWritten = FormatMessage(FORMAT_MESSAGE_FROM_STRING
                                | FORMAT_MESSAGE_ARGUMENT_ARRAY,
-                               _T("Error ERR#%1!2.2d!"),
+                               _T("Error#%1!2.2d!"),
                                0,
                                0,
                                buffer_in,
@@ -522,12 +522,12 @@ static int PS_RunProcess (TCHAR *CommandLine)
                                  (char **)Args);
     if (BytesWritten > 0)
     {
-      MessageBox(NULL, Message, _T("Error [ERR#08]"), MB_ICONERROR);
+      MessageBox(NULL, Message, _T("Error#08"), MB_ICONERROR);
       LocalFree(Message);
     }
     else
     {
-      MessageBox(NULL, PS_UNEXPECTED_ERROR, _T("Error [ERR#09]"), MB_ICONERROR);
+      MessageBox(NULL, PS_UNEXPECTED_ERROR, _T("Error#09"), MB_ICONERROR);
     }
   }
 
