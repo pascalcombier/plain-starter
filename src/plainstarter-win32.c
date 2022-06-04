@@ -139,17 +139,6 @@ static int  PS_LAST_EXEC_CODE = FALSE;
 /* UTILITY LIBC FUNCTIONS */
 /*------------------------*/
 
-static void PS_ZeroMemory (void *InPtr, size_t ByteCount)
-{
-  char *EndPtr = (char *)InPtr + ByteCount;
-  char *p      = (char *)InPtr;
-  while (p < EndPtr)
-  {
-    *p = 0;
-    p++;
-  }
-}
-
 static TCHAR *PS_StringAppend (TCHAR       *Out,
                                const TCHAR *InStart,
                                const TCHAR *InEnd)
@@ -444,9 +433,9 @@ static int PS_RunProcess (TCHAR *CommandLine)
   DWORD                ExitCode;
   DWORD                BytesWritten;
   TCHAR               *Message;
-  
-  PS_ZeroMemory(&si, sizeof(si));
-  PS_ZeroMemory(&pi, sizeof(pi));
+
+  SecureZeroMemory(&si, sizeof(si));
+  SecureZeroMemory(&pi, sizeof(pi));
 
   si.cb = sizeof(si);
 
