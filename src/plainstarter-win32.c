@@ -100,7 +100,7 @@
 #include <shellapi.h>
 #include <shlwapi.h>
 
-#define ARRAY_SIZE(array) ((sizeof(array)/sizeof(array[0])))
+#define PS_ARRAY_SIZE(array) ((sizeof(array)/sizeof(array[0])))
 
 /*-----------*/
 /* CONSTANTS */
@@ -752,20 +752,20 @@ static int PS_EffectiveMain (int argc, TCHAR **argv)
   TCHAR *ProgramDirectory = NULL;
 
   PS_LAST_EXEC_CODE = EXIT_SUCCESS;
-  ConfigFilename = PS_GetConfigFilename(PS_CONFIG_DIR_1, ARRAY_SIZE(PS_CONFIG_DIR_1), Argv0);
+  ConfigFilename = PS_GetConfigFilename(PS_CONFIG_DIR_1, PS_ARRAY_SIZE(PS_CONFIG_DIR_1), Argv0);
   ConfigData     = PS_FileSlurp(ConfigFilename);
 
   if (ConfigData == NULL)
   {
     HeapFree(HeapHandle, 0, ConfigFilename);
-    ConfigFilename = PS_GetConfigFilename(PS_CONFIG_DIR_2, ARRAY_SIZE(PS_CONFIG_DIR_2), Argv0);
+    ConfigFilename = PS_GetConfigFilename(PS_CONFIG_DIR_2, PS_ARRAY_SIZE(PS_CONFIG_DIR_2), Argv0);
     ConfigData     = PS_FileSlurp(ConfigFilename);
   }
 
   if (ConfigData == NULL)
   {
     HeapFree(HeapHandle, 0, ConfigFilename);
-    ConfigFilename = PS_GetConfigFilename(PS_CONFIG_DIR_3, ARRAY_SIZE(PS_CONFIG_DIR_3), Argv0);
+    ConfigFilename = PS_GetConfigFilename(PS_CONFIG_DIR_3, PS_ARRAY_SIZE(PS_CONFIG_DIR_3), Argv0);
     ConfigData     = PS_FileSlurp(ConfigFilename);
   }
 
