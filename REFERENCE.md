@@ -234,7 +234,7 @@ static const size_t PS_MAX_CONFIG_FILE_SIZE = (size_t)10240;
 
 ### Change icon with software compilation
 
-The icon is located in `art\plaingate.ico`.
+The icon is located in `art\plainstarter.ico`.
 
 ### Change icon without software compilation
 
