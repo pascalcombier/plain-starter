@@ -125,15 +125,14 @@ static const TCHAR  PS_CONFIG_DIR_3[1]  = _T("");
 /*------------------*/
 
 /* Buffer which can contain the largest Windows PATH variable */
-static TCHAR buffer_in[32767];
-static TCHAR buffer_out[32767];
+static TCHAR PS_BufferIn[32767];
+static TCHAR PS_BufferOut[32767];
 
 static BOOL PS_OPTION_INIT_COMMON_CONTROLS = FALSE;
 static BOOL PS_OPTION_SHOW_CONSOLE         = FALSE;
 static BOOL PS_OPTION_MONITOR_PROCESS      = FALSE;
 static BOOL PS_OPTION_DEBUG                = FALSE;
-
-static int  PS_LAST_EXEC_CODE = FALSE;
+static int  PS_LAST_EXEC_CODE              = FALSE;
 
 /*------------------------*/
 /* UTILITY LIBC FUNCTIONS */
@@ -171,12 +170,12 @@ static void PS_MessageAndExit (char         ErrorId,
                                _T("Error#%1!2.2d!"),
                                0,
                                0,
-                               buffer_in,
-                               sizeof(buffer_in),
+                               PS_BufferIn,
+                               sizeof(PS_BufferIn),
                                (char **)Args);
   if (BytesWritten > 0)
   {
-    MessageBox(NULL, Message, buffer_in, MB_ICONERROR);
+    MessageBox(NULL, Message, PS_BufferIn, MB_ICONERROR);
   }
   else
   {
@@ -323,12 +322,12 @@ static TCHAR *PS_FileSlurp (TCHAR *Filename)
                                    _T("Software limit: %3!d! bytes"),
                                    0,
                                    0,
-                                   buffer_in,
-                                   sizeof(buffer_in),
+                                   PS_BufferIn,
+                                   sizeof(PS_BufferIn),
                                    (char **)Args);
       if (BytesWritten > 0)
       {
-        PS_MessageAndExit(3, buffer_in, EXIT_FAILURE);
+        PS_MessageAndExit(3, PS_BufferIn, EXIT_FAILURE);
       }
       else
       {
@@ -499,14 +498,14 @@ static int PS_RunProcess (TCHAR *CommandLine)
   else
   {
     ExitCode = -1;
-    if (GetEnvironmentVariable(_T("PATH"), buffer_in, (sizeof(buffer_in))) == 0)
+    if (GetEnvironmentVariable(_T("PATH"), PS_BufferIn, (sizeof(PS_BufferIn))) == 0)
     {
-      buffer_in[0] = _T('\0');
+      PS_BufferIn[0] = _T('\0');
     }
 
     DWORD_PTR Args[] = {
       (DWORD_PTR)CommandLine,
-      (DWORD_PTR)buffer_in
+      (DWORD_PTR)PS_BufferIn
     };
 
     BytesWritten = FormatMessage(FORMAT_MESSAGE_FROM_STRING
@@ -562,12 +561,12 @@ static BOOL PS_SM_HasOption (TCHAR *Options, TCHAR *Option)
 static void PS_SM_ReadOptions ()
 {
   /* Put the options in BufferIn */
-  ExpandEnvironmentStrings(L"%PLAINSTARTER_OPTIONS%", buffer_in, sizeof(buffer_in));
+  ExpandEnvironmentStrings(L"%PLAINSTARTER_OPTIONS%", PS_BufferIn, sizeof(PS_BufferIn));
 
-  PS_OPTION_SHOW_CONSOLE         = PS_SM_HasOption(buffer_in, _T("show-console"));
-  PS_OPTION_INIT_COMMON_CONTROLS = PS_SM_HasOption(buffer_in, _T("init-common-controls"));
-  PS_OPTION_MONITOR_PROCESS      = PS_SM_HasOption(buffer_in, _T("monitor-process"));
-  PS_OPTION_DEBUG                = PS_SM_HasOption(buffer_in, _T("debug"));
+  PS_OPTION_SHOW_CONSOLE         = PS_SM_HasOption(PS_BufferIn, _T("show-console"));
+  PS_OPTION_INIT_COMMON_CONTROLS = PS_SM_HasOption(PS_BufferIn, _T("init-common-controls"));
+  PS_OPTION_MONITOR_PROCESS      = PS_SM_HasOption(PS_BufferIn, _T("monitor-process"));
+  PS_OPTION_DEBUG                = PS_SM_HasOption(PS_BufferIn, _T("debug"));
 }
 
 static void PS_SM_ProcessVariable (const TCHAR *Name,
@@ -581,7 +580,7 @@ static void PS_SM_ProcessVariable (const TCHAR *Name,
 
   if (lstrcmp(Name, CMD_LINE) == 0)
   {
-    p = buffer_in + lstrlen(buffer_in);
+    p = PS_BufferIn + lstrlen(PS_BufferIn);
     for (i=1 ; i<argc ; i++)
     {
       *p++ = _T(' ');
@@ -593,10 +592,10 @@ static void PS_SM_ProcessVariable (const TCHAR *Name,
     /* End the string */
     *p = _T('\0');
 
-    if (ExpandEnvironmentStrings(buffer_in, buffer_out, sizeof(buffer_out)) == 0)
+    if (ExpandEnvironmentStrings(PS_BufferIn, PS_BufferOut, sizeof(PS_BufferOut)) == 0)
     {
       /* If fails, just copy the buffer unchanged */
-      p = PS_StringAppend(buffer_out, buffer_in, buffer_in + lstrlen(buffer_in));
+      p = PS_StringAppend(PS_BufferOut, PS_BufferIn, PS_BufferIn + lstrlen(PS_BufferIn));
       p[0] = _T('\0');
     }
 
@@ -609,14 +608,14 @@ static void PS_SM_ProcessVariable (const TCHAR *Name,
     SetEnvironmentVariable(_T("PLAINSTARTER_OPTIONS"),   NULL);
 
     /* Run the process */
-    PS_LAST_EXEC_CODE = PS_RunProcess(buffer_out);
+    PS_LAST_EXEC_CODE = PS_RunProcess(PS_BufferOut);
   }
   else
   {
     /* Try to expand the references to environment variables (ie %PATH%) */
-    if (ExpandEnvironmentStrings(Value, buffer_out, sizeof(buffer_out)) != 0)
+    if (ExpandEnvironmentStrings(Value, PS_BufferOut, sizeof(PS_BufferOut)) != 0)
     {
-      Value = buffer_out;
+      Value = PS_BufferOut;
     }
     else
     {
@@ -637,7 +636,7 @@ static void PS_ParseConfiguration (TCHAR  *Buffer,
                                    TCHAR **argv)
 {
   TCHAR  VariableName[PS_MAX_LINE_LEN_BYTES];
-  TCHAR *VariableValue = buffer_in;
+  TCHAR *VariableValue = PS_BufferIn;
   TCHAR *p;
 
   enum { STATE_ReadName, STATE_ReadValue, STATE_ReadComment, STATE_ReadN } ParserState;
@@ -647,8 +646,8 @@ static void PS_ParseConfiguration (TCHAR  *Buffer,
 
   /* Parse the Buffer */
   ParserState = STATE_ReadName;
-  Index        = 0;
-  p            = Buffer;
+  Index       = 0;
+  p           = Buffer;
 
   PS_SM_Initialize(BinaryDirectory);
 
@@ -764,7 +763,7 @@ static int PS_EffectiveMain (int argc, TCHAR **argv)
   }
   else
   {
-    ProgramDirectory = PS_LocateWin32BinaryDirectory(buffer_in, sizeof(buffer_in));
+    ProgramDirectory = PS_LocateWin32BinaryDirectory(PS_BufferIn, sizeof(PS_BufferIn));
     PS_ParseConfiguration(ConfigData, ProgramDirectory, argc, argv);
     HeapFree(HeapHandle, 0, ProgramDirectory);
     HeapFree(HeapHandle, 0, ConfigData);
