@@ -82,15 +82,6 @@
  * init-common-controls
  * monitor-process
  * debug
- *
- * History:
- * [2015-01-07] v0.1 Initial implementation
- * [2016-04-07] v0.2 first clean release
- * [2016-06-10] v0.2 add documentation and error message for MAX_BUFFER_LENGTH
- * [2016-07-14] v0.3 add W32STARTER_HIDE_CONSOLE documentation and visual styles
- * [2016-09-08] v0.4 main() function to return 'return code' of child process
- * [2017-04-26] v0.5 remove dependancy to standard libc to minimize binary size
- * [2017-05-06] v0.6 API change: PLAINSTARTER_xxx and documentation
  */
 
 /*---------------------*/
