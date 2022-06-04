@@ -18,8 +18,11 @@ BIN_DIR = bin64
 
 BINARIES += $(BIN_DIR)\plainstarter-x86-64-console.exe
 BINARIES += $(BIN_DIR)\plainstarter-x86-64-gui.exe
+BINARIES += $(BIN_DIR)\plainstarter-x86-64-dbg-1.txt
+BINARIES += $(BIN_DIR)\plainstarter-x86-64-dbg-2.txt
 
 SPECIAL_OBJECTS += $(BIN_DIR)\resources.o
+SPECIAL_OBJECTS += $(BIN_DIR)\plainstarter-x86-64-dbg.o
 
 STATIC_LIBS += -luser32
 STATIC_LIBS += -lkernel32
@@ -63,3 +66,16 @@ $(BIN_DIR)\plainstarter-x86-64-console.exe: src\plainstarter-win32.c $(BIN_DIR)\
 
 $(BIN_DIR)\plainstarter-x86-64-gui.exe: src\plainstarter-win32.c $(BIN_DIR)\resources.o
 	$(CC) -s -mwindows -DPLAINSTARTER_WINDOWS $(CC_FLAGS) $(LDFLAGS) $^ -o $@ $(STATIC_LIBS)
+
+#
+# Generate debug information in order to monitor binary file size
+#
+
+$(BIN_DIR)\plainstarter-x86-64-dbg.o: src\plainstarter-win32.c
+	$(CC) -DPLAINSTARTER_CONSOLE -fPIC $(CC_FLAGS) $^ -c -o $@
+
+$(BIN_DIR)\plainstarter-x86-64-dbg-1.txt: $(BIN_DIR)\plainstarter-x86-64-dbg.o
+	objdump -s $^ > $@
+
+$(BIN_DIR)\plainstarter-x86-64-dbg-2.txt: $(BIN_DIR)\plainstarter-x86-64-dbg.o
+	objdump -d $^ > $@
