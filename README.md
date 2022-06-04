@@ -28,7 +28,7 @@ Tcl/Tk, Common Lisp, etc). Let's implement the [UNIX
 cat](https://en.wikipedia.org/wiki/Cat_(Unix)) command using
 [Lua](https://www.lua.org/manual/5.4/manual.html) on Windows.
 
-## Lua code
+## Unix cat implementation
 
 In a trivial [UNIX cat](https://en.wikipedia.org/wiki/Cat_(Unix))
 implementation, the program takes a list of filenames in the parameters and
@@ -145,10 +145,15 @@ supports non-ascii characters in the filenames and configuration files. To keep
 the software simple and avoid run-time strings conversions, Plainstarter request
 to have UTF-16 LE encoded files containing an Unicode Byte Order Mark.
 
-This can be achieved by using Windows's `Notepad` to save the file:
+This can be achieved by using Windows's Notepad to save the file:
 
 ![screenshot](docs/images/notepad-unicode.png)
 
-For other problems, the errors have a specific identifier.
+For other problems, the errors have a specific identifier so that it can be easy
+to find the location in the source code.
 
 ![screenshot](docs/images/plainstarter-error-example.png)
+
+# Technical reference
+
+A [technical reference](REFERENCE.md) is available in a dedicated page.
