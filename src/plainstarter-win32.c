@@ -132,7 +132,7 @@ static BOOL PS_OPTION_INIT_COMMON_CONTROLS = FALSE;
 static BOOL PS_OPTION_SHOW_CONSOLE         = FALSE;
 static BOOL PS_OPTION_MONITOR_PROCESS      = FALSE;
 static BOOL PS_OPTION_DEBUG                = FALSE;
-static int  PS_LAST_EXEC_CODE              = FALSE;
+static int  PS_LAST_EXEC_CODE              = EXIT_SUCCESS;
 
 /*------------------------*/
 /* UTILITY LIBC FUNCTIONS */
@@ -395,27 +395,25 @@ static TCHAR *PS_LocateWin32BinaryDirectory (TCHAR  *Buffer,
 
 static void PS_ReportExecutionError (int ErrorCode)
 {
-  TCHAR *Message;
   DWORD BytesWritten;
-
+  
   DWORD_PTR Args[] = {
     (DWORD_PTR)ErrorCode
   };
 
   BytesWritten = FormatMessage(FORMAT_MESSAGE_FROM_STRING
-                               | FORMAT_MESSAGE_ARGUMENT_ARRAY
-                               | FORMAT_MESSAGE_ALLOCATE_BUFFER,
+                               | FORMAT_MESSAGE_ARGUMENT_ARRAY,
                                _T("The child process terminated abnormally.\n")
                                _T("Return code %1!d! (0x%1!x!)"),
                                0,
                                0,
-                               (LPWSTR)&Message,
-                               0,
+                               (LPWSTR)PS_BufferOut,
+                               sizeof(PS_BufferOut),
                                (char **)Args);
 
   if (BytesWritten > 0)
   {
-    PS_MessageAndExit(5, Message, MB_ICONERROR);
+    PS_MessageAndExit(5, PS_BufferOut, MB_ICONERROR);
   }
   else
   {
@@ -426,6 +424,7 @@ static void PS_ReportExecutionError (int ErrorCode)
 static int PS_RunProcess (TCHAR *CommandLine)
 {
   BOOL                 CpResult;
+  BOOL                 ExitCodeSuccess;
   STARTUPINFO          si;
   PROCESS_INFORMATION  pi;
   int                  CreateFlags;
@@ -470,20 +469,25 @@ static int PS_RunProcess (TCHAR *CommandLine)
 
   if (CpResult == TRUE)
   {
-    if (PS_OPTION_MONITOR_PROCESS == TRUE)
+    if ((PS_OPTION_MONITOR_PROCESS == TRUE) || (PS_OPTION_DEBUG == TRUE))
     {
       /* Wait until child process exits */
       WaitForSingleObject(pi.hProcess, INFINITE);
 
       /* Retrieve the exit code */
-      if ((GetExitCodeProcess(pi.hProcess, &ExitCode) == TRUE)
-          && (ExitCode != 0))
+      ExitCodeSuccess = GetExitCodeProcess(pi.hProcess, &ExitCode);
+      
+      /* Retrieve the exit code */
+      if (ExitCodeSuccess == TRUE)
       {
-        PS_ReportExecutionError(ExitCode);
+        if (PS_OPTION_DEBUG == TRUE)
+        {
+          PS_ReportExecutionError(ExitCode);
+        }
       }
       else
       {
-        ExitCode = -1;
+        ExitCode = 99999;
       }
     }
     else
