@@ -243,7 +243,6 @@ without recompiling the program. The cost-free proprietary program Resource
 Hacker[^2] has been reported working with Plainstarter executable files.
 
 ![screenshot](docs/images/reference/resource-hacker.png)
----
 
 [^1]: [Simplified BSD License](https://opensource.org/licenses/BSD-2-Clause)
 [^2]: [Resource Hacker](http://www.angusj.com/resourcehacker)
