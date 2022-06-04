@@ -1,0 +1,27 @@
+#include <windows.h>
+
+1 ICON "..\\art\\plainstarter.ico"
+CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "plainstarter.manifest"
+
+1 VERSIONINFO
+FILEVERSION     1,0,0,0
+PRODUCTVERSION  1,0,0,0
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "080904E4"
+    BEGIN
+      VALUE "FileDescription",  "A simple starter for Win32 applications."
+      VALUE "FileVersion",      "0.6"
+      VALUE "InternalName",     "plainstarter"
+      VALUE "OriginalFilename", "plainstarter-x86_64.exe"
+      VALUE "ProductName",      "plainstarter"
+      VALUE "ProductVersion",   "0.3"
+    END
+  END
+
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x809, 1252
+  END
+END

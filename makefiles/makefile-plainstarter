@@ -1,0 +1,65 @@
+#==============================================================================#
+# PROJECT INFORMATION                                                          #
+#==============================================================================#
+
+#
+# Plainstarter
+#
+# Reference
+# https://nullprogram.com/blog/2016/01/31/
+#
+
+#==============================================================================#
+# PROJECT CONFIGURATION                                                        #
+#==============================================================================#
+
+SRC_DIR = src
+BIN_DIR = bin64
+
+BINARIES += $(BIN_DIR)\plainstarter-x86-64-console.exe
+BINARIES += $(BIN_DIR)\plainstarter-x86-64-gui.exe
+
+SPECIAL_OBJECTS += $(BIN_DIR)\resources.o
+
+STATIC_LIBS += -luser32
+STATIC_LIBS += -lkernel32
+STATIC_LIBS += -lshell32
+STATIC_LIBS += -lcomctl32
+STATIC_LIBS += -ladvapi32
+
+#==============================================================================#
+# GENERIC BUILD CONFIGURATION                                                  #
+#==============================================================================#
+
+RM = DEL 2> NUL
+CC = gcc
+
+CC_FLAGS += -Wall
+CC_FLAGS += -std=c99
+CC_FLAGS += -Wno-format
+CC_FLAGS += -Os
+CC_FLAGS += -fdiagnostics-color=never
+
+LDFLAGS += -nostdlib
+LDFLAGS += -ffreestanding
+
+#==============================================================================#
+# GNU MAKE RULES                                                               #
+#==============================================================================#
+
+.PHONY: all clean
+
+all: $(BINARIES)
+
+clean:
+	$(RM) $(SPECIAL_OBJECTS)
+	$(RM) $(BINARIES)
+
+$(BIN_DIR)\resources.o: src\resources.rc
+	windres $< -o $@
+
+$(BIN_DIR)\plainstarter-x86-64-console.exe: src\plainstarter-win32.c $(BIN_DIR)\resources.o
+	$(CC) -s -mconsole -DPLAINSTARTER_CONSOLE $(CC_FLAGS) $(LDFLAGS) $^ -o $@ $(STATIC_LIBS)
+
+$(BIN_DIR)\plainstarter-x86-64-gui.exe: src\plainstarter-win32.c $(BIN_DIR)\resources.o
+	$(CC) -s -mwindows -DPLAINSTARTER_WINDOWS $(CC_FLAGS) $(LDFLAGS) $^ -o $@ $(STATIC_LIBS)
