@@ -403,6 +403,7 @@ static void PS_ReportExecutionError (int ErrorCode)
 
   BytesWritten = FormatMessage(FORMAT_MESSAGE_FROM_STRING
                                | FORMAT_MESSAGE_ARGUMENT_ARRAY,
+                               _T("Plainstarter\n")
                                _T("The child process terminated abnormally.\n")
                                _T("Return code %1!d! (0x%1!x!)"),
                                0,
@@ -483,6 +484,12 @@ static int PS_RunProcess (TCHAR *CommandLine)
         {
           PS_ReportExecutionError(ExitCode);
         }
+#if defined(PLAINSTARTER_WINDOWS)
+        if ((PS_OPTION_MONITOR_PROCESS == TRUE) && (ExitCode != 0))
+        {
+          PS_ReportExecutionError(ExitCode);
+        }
+#endif
       }
       else
       {
