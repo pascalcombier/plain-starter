@@ -424,13 +424,13 @@ static void PS_ReportExecutionError (int ErrorCode)
 
 static int PS_RunProcess (TCHAR *CommandLine)
 {
-  BOOL                 CpResult;
-  BOOL                 ExitCodeSuccess;
-  STARTUPINFO          si;
-  PROCESS_INFORMATION  pi;
-  int                  CreateFlags;
-  DWORD                ExitCode;
-  DWORD                BytesWritten;
+  BOOL                CpResult;
+  BOOL                ExitCodeSuccess;
+  STARTUPINFO         si;
+  PROCESS_INFORMATION pi;
+  DWORD               ExitCode;
+  DWORD               BytesWritten;
+  BOOL                InheritHandles;
 
   SecureZeroMemory(&si, sizeof(si));
   SecureZeroMemory(&pi, sizeof(pi));
@@ -444,11 +444,12 @@ static int PS_RunProcess (TCHAR *CommandLine)
 
   if (PS_OPTION_SHOW_CONSOLE == TRUE)
   {
-    CreateFlags = 0;
+    InheritHandles            = TRUE;
+    PS_OPTION_MONITOR_PROCESS = TRUE;
   }
   else
   {
-    CreateFlags = CREATE_NO_WINDOW;
+    InheritHandles = FALSE;
   }
 
   if (PS_OPTION_DEBUG == TRUE)
@@ -456,16 +457,16 @@ static int PS_RunProcess (TCHAR *CommandLine)
     MessageBox(NULL, CommandLine, _T("DEBUG"), MB_ICONINFORMATION);
   }
 
-  CpResult = CreateProcess(NULL,        /* NULL: use command line        */
-                           CommandLine, /* Command line                  */
-                           NULL,        /* Process handle not inheritable*/
-                           NULL,        /* Thread handle not inheritable */
-                           FALSE,       /* No handle inheritance         */
-                           CreateFlags, /* Creation flags                */
-                           NULL,        /* Use parent environment block  */
-                           NULL,        /* Use parent starting directory */
-                           &si,         /* STARTUPINFO structure         */
-                           &pi);        /* PROCESS_INFORMATION structure */
+  CpResult = CreateProcess(NULL,           /* NULL: use command line        */
+                           CommandLine,    /* Command line                  */
+                           NULL,           /* Process handle not inheritable*/
+                           NULL,           /* Thread handle not inheritable */
+                           InheritHandles, /* No handle inheritance         */
+                           0,              /* Creation flags                */
+                           NULL,           /* Use parent environment block  */
+                           NULL,           /* Use parent starting directory */
+                           &si,            /* STARTUPINFO structure         */
+                           &pi);           /* PROCESS_INFORMATION structure */
 
   if (CpResult == TRUE)
   {
