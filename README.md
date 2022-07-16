@@ -10,10 +10,11 @@ Java, Python, Perl, Lua and many others.
 - Tcl/Tk needs `wish86t.exe`
 
 This make it non-trivial to distribute such programs. For that reason, many of
-these programs contains a script file usually named "start.bat" or "program.bat"
-which call the underlying executable with the proper parameters. Plainstarter is
-a generic project aiming to replace these "start.bat" scripts with a proper
-executable file, containing the project's icon and project's meta-data.
+these programs simply includes a script file usually named "start.bat" or
+"program.bat" which call the underlying executable with the proper
+parameters. Plainstarter is a generic project aiming to replace these
+"start.bat" scripts with a proper executable file, containing the project's icon
+and project's meta-data.
 
 Note that the project's icon and the project's meta-data need to be updated by
 the project's developers, it's obviously outside the scope of plainstarter.
@@ -30,9 +31,9 @@ cat](https://en.wikipedia.org/wiki/Cat_(Unix)) command using
 
 ## Unix cat implementation
 
-In a trivial [UNIX cat](https://en.wikipedia.org/wiki/Cat_(Unix))
-implementation, the program takes a list of filenames in the parameters and
-print the content on the standard output.
+A trivial [UNIX cat](https://en.wikipedia.org/wiki/Cat_(Unix)) implementation
+will take a list of filenames in the parameters and print the files content on
+the standard output.
 
 ```lua
 local Filenames = arg
@@ -54,10 +55,10 @@ plainstarter-x86-64-console.exe
 plainstarter-x86-64-gui.exe
 ```
 
-The program [UNIX cat](https://en.wikipedia.org/wiki/Cat_(Unix)) being a command
-line program, we will copy `plainstarter-x86-64-console.exe` and rename it into
-`lua-cat.exe`. When `lua-cat.exe` will start, it will look for the configuration
-file `configs/lua-cat.cfg`, then `config/lua-cat.cfg`, and finally
+The program [UNIX cat](https://en.wikipedia.org/wiki/Cat_(Unix)) is a command
+line program, so we simply copy `plainstarter-x86-64-console.exe` and rename it
+into `lua-cat.exe`. When `lua-cat.exe` will start, it will look for the
+configuration file `configs/lua-cat.cfg`, then `config/lua-cat.cfg`, and finally
 `lua-cat.cfg`. The first configuration file found will be used, the others will
 be ignored.
 
@@ -68,40 +69,47 @@ directory `third-party`.
 
 ```
 lua-cat
-│   lua-cat.exe
+├───lua-cat.exe (duplicate of plainstarter-x86-64-console.exe)
 │
 ├───config
-│       lua-cat.cfg
+│    └─── lua-cat.cfg
 │
 ├───sources
-│       cat.lua
+│    └─── cat.lua
 │
 └───third-party
     └───bin
-            lua54.dll
-            lua54.exe
-            luac54.exe
-            wlua54.exe
+         ├───lua54.dll
+         ├───lua54.exe
+         ├───luac54.exe
+         └───wlua54.exe
 ```
 
 ## Configuration
 
-This configuration file overrides the `%PATH%` variable, so that the Lua
-binaries are available to `lua-cat.exe`. To make it more portable,
-`third-party\bin` is prefixed to `%PATH%` instead of postfixed.
+The configuration file need to override the `%PATH%` variable, to make Lua
+binaries available to `lua-cat.exe`. To make it more portable, `third-party\bin`
+is prefixed to `%PATH%` instead of postfixed.
 
 `lua-cat.cfg`
 
 ```
 PLAINSTARTER_OPTIONS=monitor-process show-console
 PATH=%PLAINSTARTER_DIRECTORY%\third-party\bin;%PATH%
-PLAINSTARTER_CMD_LINE=lua54 sources\cat.lua
+PLAINSTARTER_CMD_LINE=lua54 %PLAINSTARTER_DIRECTORY%\sources\cat.lua
 ```
 
 `PLAINSTARTER_CMD_LINE` defines the command line to execute. Note that all the
 parameters provided to plainstarter will be appended to `PLAINSTARTER_CMD_LINE`
 implicitly. If `lua-cat.exe PARAM1 PARAM2 PARAM3` is executed, the command line
-`lua54 sources\cat.lua PARAM1 PARAM2 PARAM3` will be executed.
+`lua54 %PLAINSTARTER_DIRECTORY%\sources\cat.lua PARAM1 PARAM2 PARAM3` will be
+executed.
+
+Note that to get a really portable program, it is important to prefix the Lua
+script with %PLAINSTARTER_DIRECTORY%. Doing that allow the script to work
+properly regardless the value of the working directory (aka %CD%, $pwd). To give
+a specific example, calling something like "..\lua-cat.exe test\test.txt" will
+work if the files and directories matches.
 
 ![screenshot](docs/images/lua-cat-plainstarter-1.png)
 
@@ -109,8 +117,10 @@ implicitly. If `lua-cat.exe PARAM1 PARAM2 PARAM3` is executed, the command line
 
 # Changing the icon
 
-One need to modify the icon file `art/plainstarter.ico` from plainstarter
-project. Then a new plainstarter compilation is needed.
+If one need to modify the icon, he can change the file `art/plainstarter.ico`
+from plainstarter project and recompile the source code. He can also use the
+cost-free software [Resource Hacker](http://www.angusj.com/resourcehacker/) to
+edit the binary without recompilation.
 
 # Changing the meta-data
 
@@ -139,11 +149,26 @@ plainstarter's compilation should be straight-forward:
 
 # Troubleshooting
 
-If plainstarter is not working properly, it's likely that the configuration file
-is not using the proper encoding. Plainstarter is an Unicode program, it
-supports non-ascii characters in the filenames and configuration files. To keep
-the software simple and avoid run-time strings conversions, Plainstarter request
-to have UTF-16 LE encoded files containing an Unicode Byte Order Mark.
+* There is a behavior in plainstarter which is not properly documented regarding
+  parameter management and may lead to  confusion. On Windows, one may find some
+  inconsistent behavior regarding the first parameter (argv[0]) depending on the
+  way the process is created: by double-clicking on the executable using Windows
+  Explorer or by calling the program  using the terminal emulator. When the user
+  is  double-clicking on  an executable  file from  Windows Explorer,  the first
+  parameter  given  to  the  program  is   the  full  path  of  executable  file
+  (i.e.  C:\plain-starter\plain-starter.exe). When  the user  uses the  terminal
+  emulator,  the   first  parameter   given  to  the   program  is   a  relative
+  pathname.  This makes  things a  little bit  cumbersome to  handle, especially
+  because most of the time, the program should have the same behavior regardless
+  the way  it has been  started. For that  reason, plainstarter will  hide these
+  inconstancies and will  _always_ provide the underlying process  the full path
+  of the executable file.
+
+* If  plainstarter is not working  properly, it's likely that  the configuration
+  file is not using the proper  encoding. Plainstarter is an Unicode program, it
+  supports non-ascii  characters in  the filenames  and configuration  files. To
+  keep the software simple and  avoid run-time strings conversions, Plainstarter
+  request to have UTF-16 LE encoded files containing an Unicode Byte Order Mark.
 
 This can be achieved by using Windows's Notepad to save the file:
 
@@ -156,4 +181,4 @@ to find the location in the source code.
 
 # Technical reference
 
-A [technical reference](REFERENCE.md) is available in a dedicated page.
+A [technical reference](REFERENCE.adoc) is available in a dedicated page.
