@@ -172,7 +172,7 @@ plainstarter's compilation should be straight-forward:
 
 This can be achieved by using Windows's Notepad to save the file:
 
-![screenshot](docs/images/notepad-unicode.png)
+![screenshot](docs/images/reference/notepad-unicode-2.png)
 
 For other problems, the errors have a specific identifier so that it can be easy
 to find the location in the source code.
